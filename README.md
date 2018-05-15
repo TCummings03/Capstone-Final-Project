@@ -2,20 +2,20 @@
 
 The goal of this project is to create a machine learning model that predicts rent prices in the DC area.  This information would be useful not only to business (particularly those in real estate), but also to potential renters seeking an apartment in the area.  An analysis of this data will provide us insight into the most expensive/ least expensive localities and the main drivers of rent price.   
 
-Instead of looking for a pristine data set that was ready to be split into test/training sets and used to predict rent prices, I chose to go out and get the data on my own.  This meant that I had to do some webscrapping in order to get the data for rent prices in the DC area. I chose to use the beautifulsoup library to accomplish this.
+Instead of looking for a pristine data set that was ready to be split into test/training sets and used to predict rent prices, I chose to go out and get the data on my own.  This meant that I had to do some web scraping in order to get the data for rental prices in the DC area. I chose to use the beautifulsoup library to accomplish this.
 
-After choosing a well known rent listing website that had listings for the DC area, I had to break up the webscrapping into a few parts:
+After choosing a well-known rent listing website that had listings for the DC area, I had to break up the web scraping into a few parts:
 
 1. The site had 20 listings per page and around 700 pages, so the first thing I did was get all 700 pages' url's and store them in a          list.
-2. Next, I used each of the above pages to get preliminary information on each listing by scrapping the number of bedrooms/bathrooms,        latitude/longittude, listing id, sqft, and price. I stored each of these items in their respective master list. In addition, I            scrapped each listing's respective url to get further information on the listing.
-3. After getting the preliminary information and each listing's url, I went a level deeper and scrapped in indivdual listing page.            From here, I got a list of all the amenities each listing had and appended it to a master list.
- 4. Lastly, I created a dataframe with all the scrapped elements
+2. Next, I used each of the above pages to get preliminary information on each listing by scraping the number of bedrooms/bathrooms,        latitude/longitude, listing id, sqft, and price. I stored each of these items in their respective master list. In addition, I             scraped each listing's respective url to get further information on the listing.
+3. After getting the preliminary information and each listing's url, I went a level deeper and scraped in individual listing page.            From here, I got a list of all the amenities each listing had and appended it to a master list.
+ 4. Lastly, I created a dataframe with all the scraped elements
 
-Webscrapping code: [Webscrapping](https://github.com/TCummings03/Capstone-Final-Project/blob/master/Capstone%20Webscraping.ipynb)
+Web scraping code: [Webscrapping](https://github.com/TCummings03/Capstone-Final-Project/blob/master/Capstone%20Webscraping.ipynb)
 
-Although the scrapping was finished, my work did not stop there because I needed to unpack the amenities list and turn them into dummy variables so they could be used in a machine learning model.  First, I got the unique amenities from the amenities list and turned each of those amenities into an empty column.  Second, I looped over each row in the amenities column and added a 1 to the respective column where the amenity appeared. After creating the dummy variables for amenities, I checked to make sure there were no duplicates, which would provide noise to the model.  I found that there were in fact duplicates and instances like 'Washer' and 'washer' were treated as two separate variables. To remedy this, I turned all the amenities columns into lower case, grouped by column and summed them.  In addition, I had to make sure all of the numeric data was of data type numeric, so that it could be used in sci-kit learn.  I used pd.to_numeric to achieve this.  
+Although the scraping was finished, my work did not stop there because I needed to unpack the amenities list and turn them into dummy variables so they could be used in a machine learning model.  First, I got the unique amenities from the amenities list and turned each of those amenities into an empty column.  Second, I looped over each row in the amenities column and added a 1 to the respective column where the amenity appeared. After creating the dummy variables for amenities, I checked to make sure there were no duplicates, which would provide noise to the model.  I found that there were in fact duplicates and instances like 'Washer' and 'washer' were treated as two separate variables. To remedy this, I turned all the amenities columns into lower case, grouped by column and summed them.  In addition, I had to make sure all of the numeric data was of data type numeric, so that it could be used in sci-kit learn.  I used pd.to_numeric to achieve this.  
 
-Geocoding: Since I was able to scrape the latitude and longitude data for each listing, I decided to geocode this data and retreive the locality for each listing.  This would, perhaps, provide more insight into the spread of the listings on a physical map, and potential predictive power in a machine learning model. For this, I used the pygeocoder package which is a wrapper for Google's geocoding API. 
+Geocoding: Since I was able to scrape the latitude and longitude data for each listing, I decided to geocode this data and retrieve the locality for each listing.  This would, perhaps, provide more insight into the spread of the listings on a physical map, and potential predictive power in a machine learning model. For this, I used the pygeocoder package which is a wrapper for Google's geocoding API. 
 
 ```#Geocoding to get neighborhood for each observation from longitude and latitude
 
@@ -34,7 +34,7 @@ for coor in tqdm(range(len(df))):
 
 Outliers:
 
-During my exploratory data analysis, I created scatter plots of each of the numeric columns(beds, baths, sqft) plotted against rent price to see if there were any outliers. From the scatter plots, I was able to detect the outliers and investigate those points. I could tell that they were outliers on the graph becuase they did not follow the general trend. However, upon further inspection I was able to confirm they were outliers because they had values such as 99999 for square footage or price. I removed these points.  In addition, I checked points below 100 sqft that had rent prices that did not seem plausible -- I also removed these points. In the below plots, we can see the progression of the plots after removing outliers.
+During my exploratory data analysis, I created scatter plots of each of the numeric columns(beds, baths, sqft) plotted against rent price to see if there were any outliers. From the scatter plots, I was able to detect the outliers and investigate those points. I could tell that they were outliers on the graph because they did not follow the general trend. However, upon further inspection, I was able to confirm they were outliers because they had values such as 99999 for square footage or price. I removed these points.  In addition, I checked points below 100 sqft that had rent prices that did not seem plausible -- I also removed these points. In the below plots, we can see the progression of the plots after removing outliers.
 
 ![plot1](https://github.com/TCummings03/Capstone-Final-Project/blob/master/Images/Pic1.png)
 --
@@ -50,10 +50,10 @@ The main issues concerning missing values had to do with the amenities column an
 2. Get all observations where sqft = NaN
 3. Drop all NaN values from the smaller data frame
 4. Fit a linear regression model on the smaller data frame
-5. Take the obersvations where sqft = NaN and predict NaN values with linear model
+5. Take the observations where sqft = NaN and predict NaN values with linear model
 6. Add these predictions to the original data frame (fill in missing sqft values)
 
-After I had removed outliers, checked for duplicates, imputed missing values, and created all dummy variables, my data frame was ready for a machine learning model. Through this process, I was able to get hands on experience with messy data from the web and turn it into a manageable dataframe that was accessible. 
+After I had removed outliers, checked for duplicates, imputed missing values, and created all dummy variables, my data frame was ready for a machine learning model. Through this process, I was able to get hands-on experience with messy data from the web and turn it into a manageable dataframe that was accessible. 
 
 **Data Story**
 
@@ -89,11 +89,11 @@ From looking at the plot above, it looks like the median sqft median price is ar
 
 ![Lower Decile](https://github.com/TCummings03/Capstone-Data-Story/blob/master/Images/Bottom10.png)
 
-From the plot above, we can tell that there is a drastic different in terms of median sqft price. Whereas the top decile consisted of a median price around $3, the median price for the lower decile looks to be around $1 per square foot. However, we also know that from looking at our plot of deciles by locality, that these cheaper priced listings are located farther from DC proper.  Another interesting thing to note about this plot is that compared to the top decile plot, most of the localities appear to have listings that are relatively similar in price with smaller boxes and whiskers.  
+From the plot above, we can tell that there is a drastic difference in terms of median sqft price. Whereas the top decile consisted of a median price around $3, the median price for the lower decile looks to be around $1 per square foot. However, we also know that from looking at our plot of deciles by locality, that these cheaper priced listings are located farther from DC proper.  Another interesting thing to note about this plot is that compared to the top decile plot, most of the localities appear to have listings that are relatively similar in price with smaller boxes and whiskers.  
 
 3. Bedrooms and Bathrooms
 
-Another important factor that affects the rental price is the number of bedrooms and bedrooms. Let's take a closer look at the marginal prices of these to see how much and extra bedroom or bathroom affects the rental price.  For this, we will look at the median prices:
+Another important factor that affects the rental price is the number of bedrooms and bedrooms. Let's take a closer look at the marginal prices of these to see how much an extra bedroom or bathroom affects the rental price.  For this, we will look at the median prices:
 
 ![Bedrooms](https://github.com/TCummings03/Capstone-Data-Story/blob/master/Images/Bedrooms.png)
 
@@ -109,7 +109,7 @@ Price of an extra bedroom:
 
 4 -5 : $602
 
-From the table above, we can see that studio apartments and one bedroom apartments are similarly priced, whereas rentals with multiple bedrooms seem to have a larger difference in price.  One would guess that the more bedrooms a rental has, the more expensive it is, and it seems like that is the general trend from the graph above. However, we can also notice that the difference between 1-2 bedrooms($250) is larger than the difference between 2-3 bedrooms ($200), which may suggest that 3 bedroom rentals are a better value when looking for multiple bedrooms.
+The table above shows that studio apartments and one bedroom apartments are similarly priced, whereas rentals with multiple bedrooms seem to have a larger difference in price.  One would guess that the more bedrooms a rental has, the more expensive it is, and it seems like that is the general trend from the graph above. However, we can also notice that the difference between 1-2 bedrooms($250) is larger than the difference between 2-3 bedrooms ($200), which may suggest that 3 bedroom rentals are a better value when looking for multiple bedrooms.
 
 
 ![Bathrooms](https://github.com/TCummings03/Capstone-Data-Story/blob/master/Images/Bathrooms.png)
@@ -128,7 +128,7 @@ From the table above, it appears that having an extra bathroom seems to have a g
 
 ![Rent Price vs SQFT](https://github.com/TCummings03/Capstone-Data-Story/blob/master/Images/Rent%20price%20vs%20SQFT.png)
 
-As we have hypothesized earlier, the larger the apartment, the higher the price. We can see this fairly clearly in the plot above, which shows rent price vs. sqft.  In the plot above, we see a postive correlation between rent price and sqft implying the more sqft, the higher the price.  However, from looking at the deciles above, we have the added benefit of knowing where the value lies in terms of price per sqft broken down by decile.  
+As we have hypothesized earlier, the larger the apartment, the higher the price. We can see this fairly clearly in the plot above, which shows rent price vs. sqft.  In the plot above, we see a positive correlation between rent price and sqft implying the more sqft, the higher the price.  However, from looking at the deciles above, we have the added benefit of knowing where the value lies in terms of price per sqft broken down by decile.  
 
 **Visualization Conclusions:**
 
@@ -136,15 +136,15 @@ From our visual exploration of the data, we have gained a greater insight into w
 
 **Inferential Statistics**
 
-For this portion of the project, I will use some of the inferential statistics techniques I've learned to gain greater insight into my cleaned data set.  The final goal for the capstone project will be to predict rent prices in the DC area by using a regression model.  One of the models we will try to use, is linear regression. Although normality of the dependent variables is not a requirement for linear regression, it would behoove us to check the distribution of rent prices to see if they are normally distributed.  
+For this portion of the project, I will use some of the inferential statistics techniques I've learned to gain greater insight into my cleaned data set.  The final goal fo the capstone project will be to predict rent prices in the DC area by using a regression model.  One of the models we will try to use is the linear regression model in sklearn. Although normality of the dependent variables is not a requirement for linear regression, it would behoove us to check the distribution of rent prices to see if they are normally distributed.  
 
 ![Image](https://github.com/TCummings03/Springboard-Capstone-Inferential-Statistics/blob/master/Images/Regular%20distplot.png)
 
-As noted in the Data Story, the distribution of rent prices seems to be right skewed. This may suggest that there are some extreme values pulling the mean of the distribution up and the median will be a better statistic for understanding the middle values.  Perhaps, taking the log of the rent prices will provide us with a normally distributed plot.
+As noted in the Data Story, the distribution of rent prices seems to be right-skewed. This may suggest that there are some extreme values pulling the mean of the distribution up and the median will be a better statistic for understanding the middle values.  Perhaps, taking the log of the rent prices will provide us with a normally distributed plot.
 
 ![Image](https://github.com/TCummings03/Springboard-Capstone-Inferential-Statistics/blob/master/Images/Logfit%20displot.png)
 
-As we can see from the plot above, the distribution appears to look more normal after the log transformation. Included on the plot, in black, is a theoretical normal distribution for the values we have.  The distplot appears to be pretty close to this normal projection.  However, for interpretation purposes, it is important to note that if we were to create a regression model with rent price(y) and indepdent variables(x), the betas of the independent variables would be the percentage increase in y as a result of a one unit increase in x.  
+As we can see from the plot above, the distribution appears to look more normal after the log transformation. Included on the plot, in black, is a theoretical normal distribution for the values we have.  The distplot appears to be pretty close to this normal projection.  However, for interpretation purposes, it is important to note that if we were to create a regression model with rent price(y) and independent variables(x), the betas of the independent variables would be the percentage increase in y as a result of a one unit increase in x.  
 
 What are the most important independent variables?
 
@@ -159,7 +159,7 @@ In order to answer this question, we will create a correlation matrix with all o
 
 ![Image](https://github.com/TCummings03/Springboard-Capstone-Inferential-Statistics/blob/master/Images/Negative%20Corr.png)
 
-As we can see from the tables above, the top three most influential features according to the correlation matrix are sqft, bathrooms, and bedrooms (in that order).  The next closest feature has half the correlation coefficient of bedrooms ('Cooktop').  It's also interesing to note that the negatively correlated features have fairly weak correlations with the highest being around -0.12.  Perhaps even more interesting, the classic trope, Location! Location! Location! seems not to be as important as the top three features. Northwest Washington is the highest correlated locality with price and it's correlation coefficient is only 0.203816.  Because of this, we will take a closer look into the top three correlated with price. Lastly, it is always important to note whenever dealing with correlations that correlation != causation. 
+As we can see from the tables above, the top three most influential features according to the correlation matrix are sqft, bathrooms, and bedrooms (in that order).  The next closest feature has half the correlation coefficient of bedrooms ('Cooktop').  It's also interesting to note that the negatively correlated features have fairly weak correlations with the highest being around -0.12.  Perhaps even more interesting, the classic trope, Location! Location! Location! seems not to be as important as the top three features. Northwest Washington is the highest correlated locality with price and its correlation coefficient is only 0.203816.  Because of this, we will take a closer look at the top three features correlated with price. Lastly, it is always important to note whenever dealing with correlations that correlation does not equal causation. 
 
 **Top Three Correlations**
 
@@ -169,11 +169,11 @@ As we can see from the tables above, the top three most influential features acc
 
 ![Image](https://github.com/TCummings03/Springboard-Capstone-Inferential-Statistics/blob/master/Images/Rent%20vs%20Beds.png)
 
-From the joint plots above, we can see a couple of different things. 1) A histogram of each variable 2) the pearsonr & p value 3) regression line.  All three have positive correlations with price, which suggests the more sqft, beds, or baths, the higher the rent price. This makes sense because the larger the apartment, the higher the price. What's interesting to note, however, about the sqft distribution is that it appears to be suffering from heteroskedasticity, which occurs when the variability of a variable is unequal acorss the range of values of a second variable that predicts it.  Due to the hetereoskedasticity, it may be wise to also take a log transformation of sqft when running our regression model. The distribution of bedrooms and bathrooms seems to be right skewed, which may suggest that they too could benefit from log transformations.  Although this is not a requirement for linear regression, it may help improve our model and make interpretation of coefficients easier. As far as the central limit is concerned, we can be comfortable with satisfying the benchmark of more than 30 observations since our dataset consists of nearly 12,000 listings. 
+From the joint plots above, we can see a couple of different things. 1) A histogram of each variable 2) the pearsonr & p value 3) regression line.  All three have positive correlations with price, which suggests the more sqft, beds, or baths, the higher the rent price. This makes sense because the larger the apartment, the higher the price. What's interesting to note, however, about the sqft distribution is that it appears to be suffering from heteroskedasticity, which occurs when the variability of a variable is unequal across the range of values of a second variable that predicts it.  Due to the heteroskedasticity, it may be wise to also take a log transformation of sqft when running our regression model. The distribution of bedrooms and bathrooms seems to be right skewed, which may suggest that they too could benefit from log transformations.  Although this is not a requirement for linear regression, it may help improve our model and make interpretation of coefficients easier. As far as the central limit is concerned, we can be comfortable with satisfying the benchmark of more than 30 observations since our dataset consists of nearly 12,000 listings. 
 
 **Base Case**
 
-Figuring out the best loss function to score our model is crucial. Whether you're using RMSE, MSE, r^2, etc. it is important to define your scoring fucntion.  Another critical inferential statistic skill that is necessary for analyze our results is creating a "baseline case." This baseline case will help serve as the backdrop against which we can compare the results of our model.  We will use this baseline case in conjunction with our scoring function of Root Mean Squared Error to evaluate our model.  The base case is found by taking the median price/ median sqft and multiplying it by each respective listing's sqft. This "base case" is a fairly crude way of predicting rent price. However, this is useful as a bench mark to see if using a model will actually be useful in trying to predict rent price.  At a minimum, the model should do better than the RMSE from the base case (1101.4502853). Here is the code for the base case:
+Figuring out the best loss function to score our model is crucial. Whether you're using RMSE, MSE, r^2, etc. it is important to define your scoring function.  Another critical inferential statistic skill that is necessary for analyze our results is creating a "baseline case." This baseline case will help serve as the backdrop against which we can compare the results of our model.  We will use this baseline case in conjunction with our scoring function of Root Mean Squared Error to evaluate our model.  The base case is found by taking the median price/ median sqft and multiplying it by each respective listing's sqft. This "base case" is a fairly crude way of predicting rent price. However, this is useful as a bench-mark to see if using a model will actually be useful in trying to predict rent price.  At a minimum, the model should do better than the RMSE from the base case (1101.4502853). Here is the code for the base case:
 
 ```#Get a baseline case to compare model against:
 
@@ -223,7 +223,7 @@ Bottom 10 Coefficients:
 
 2. How many bedrooms and bathrooms?
 
-For individuals looking to live by themselves, they have two choices: studio apartment or a one bedroom apartment. However, from previous analysis, we know that the median extra cost of a bedroom (moving from a studio to a one bedroom) is only $53 compared to going from a 1 bedroom to a 2 bedroom which is $250. For these individuals, it may be worth it to pay slightly more for the extra bedroom and space.
+For individuals looking to live by themselves, they have two choices: studio apartment or a one bedroom apartment. However, from the previous analysis, we know that the median extra cost of a bedroom (moving from a studio to a one bedroom) is only $53 compared to going from a 1 bedroom to a 2 bedroom which is $250. For these individuals, it may be worth it to pay slightly more for the extra bedroom and space.
 
 In addition, the marginal price of a "half bathroom" is relatively small, so rental listings that include huge differences for adding the half bathroom should give us pause.  
 
@@ -244,8 +244,8 @@ Not surprisingly, the most expensive area in DC is downtown DC which commands a 
 
 A few notes:
 
-1. One of the biggest issues that I ran into when creating a webscrapping tool was the presence of outliers.  This would greatly impact the accuracy of my model and it was necessary to take precaution when creating a model. Going foward, it would help to have an outlier detection model that would return a probability for whether or not a listing is a 1. a real listing with corretctly inputed data 2. an outlier
+1. One of the biggest issues that I ran into when creating a web scraping tool was the presence of outliers.  This would greatly impact the accuracy of my model and it was necessary to take precaution when creating a model. Going forward, it would help to have an outlier detection model that would return a probability for whether or not a listing is a 1. a real listing with correctly imputed data 2. an outlier
 
 2. Another way to improve this model and provide more insight would be to find points of interest and include the distance from the listing to the point of interest as a feature. This would require some GIS knowledge.
 
-3. A lot of the amenities did not seem to provide material predictive power on the model, and I believe this is because the sheer number (1400+) created too much noise combined with each amentiies being subject to user input errors. A text analysis of the "soup" of amenities could provide greater insight into the actual distribution of amenities.
+3. A lot of the amenities did not seem to provide material predictive power on the model, and I believe this is because the sheer number (1400+) created too much noise combined with each amenities being subject to user input errors. A text analysis of the "soup" of amenities could provide greater insight into the actual distribution of amenities.
